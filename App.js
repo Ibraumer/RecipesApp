@@ -15,7 +15,7 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={({ navigation }) => ({
-          headerTitle: 'RecipeFindeaaaaaar',
+          headerTitle: 'RecipeFinder',
           headerStyle: { backgroundColor: '#e0ffff' }, 
           headerTintColor: '#8b008b', 
           headerTitleStyle: { fontWeight: 'bold' }, 
