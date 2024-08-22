@@ -86,7 +86,7 @@ const HomeScreen = ({ navigation }) => {
               style={styles.favoritesTile}
               onPress={() => navigation.navigate('RecipeDetails', { id: item.idMeal })}
             >
-              
+              <AntDesign name="heart" size={16} color="orange" style={styles.favoriteIcon} />
               <Image source={{ uri: item.strMealThumb }} style={styles.favoritesTileImage} />
               <Text style={styles.favoritesTileText}>{item.strMeal}</Text>
               <TouchableOpacity
@@ -295,7 +295,8 @@ const styles = StyleSheet.create({
       borderWidth: 2,
       borderRadius: 8,
       borderColor: '#8b008b',
-      marginVertical: 8,
+      marginVertical: 4,
+      marginHorizontal:8,
       backgroundColor: '#e0ffff',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
@@ -304,7 +305,7 @@ const styles = StyleSheet.create({
       elevation: 5,
     },
     itemText: {
-      fontSize: 17,
+      fontSize: 16,
       color: '#8b008b',
       marginLeft: 8,
     },

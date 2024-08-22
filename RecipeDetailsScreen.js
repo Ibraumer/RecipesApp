@@ -8,12 +8,19 @@ const RecipeDetailsScreen = ({ route }) => {
   const { id } = route.params;
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false); // State to track if the recipe is a favorite
 
   useEffect(() => {
     const fetchRecipeDetails = async () => {
       try {
         const response = await axios.get(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
         setRecipe(response.data.meals[0]);
+
+        // Check if the recipe is already in favorites
+        const currentFavorites = await AsyncStorage.getItem('favorites');
+        const favoritesArray = currentFavorites ? JSON.parse(currentFavorites) : [];
+        const isAlreadyFavorite = favoritesArray.some((fav) => fav.idMeal === response.data.meals[0].idMeal);
+        setIsFavorite(isAlreadyFavorite);
       } catch (error) {
         console.error(error);
       } finally {
@@ -45,6 +52,7 @@ const RecipeDetailsScreen = ({ route }) => {
       } else {
         favoritesArray.push(recipe);
         await AsyncStorage.setItem('favorites', JSON.stringify(favoritesArray));
+        setIsFavorite(true); // Update the state to indicate the recipe is now a favorite
         Alert.alert('Added to Favorites', 'This recipe has been added to your favorites.');
       }
     } catch (error) {
@@ -56,18 +64,24 @@ const RecipeDetailsScreen = ({ route }) => {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Image
-          source={{ uri: recipe.strMealThumb }}
-          style={styles.image}
-        />
-        <Text style={styles.title}>{recipe.strMeal}</Text>
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: recipe.strMealThumb }}
+            style={styles.image}
+          />
+        </View>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{recipe.strMeal}</Text>
+        </View>
         <Text style={styles.subtitle}>Category: {recipe.strCategory}</Text>
         <Text style={styles.subtitle}>Area: {recipe.strArea}</Text>
 
         <View style={styles.favoritesContainer}>
           <TouchableOpacity style={styles.favoritesButton} onPress={handleAddToFavorites}>
             <AntDesign name="heart" size={24} color="red" />
-            <Text style={styles.favoritesText}>Add to Favorites</Text>
+            <Text style={styles.favoritesText}>
+              {isFavorite ? 'In Favorites' : 'Add to Favorites'}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -88,36 +102,59 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingBottom: 20,
   },
+  imageContainer: {
+    marginTop: 8,
+    marginHorizontal: 20,
+    borderRadius: 15,
+    overflow: 'hidden',
+    elevation: 20,
+    borderColor: '#ff6347',
+    borderWidth: 1,
+    backgroundColor: '#ffffff',
+    paddingBottom: 10,
+  },
   image: {
     width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 16,
+    height: 250,
+  },
+  titleContainer: {
+    backgroundColor: 'orange',
+    padding: 10,
+    borderRadius: 20,
+    marginBottom: 8,
+    marginTop: 8,
+    marginHorizontal: 30,
+    alignItems: 'center',
+    elevation: 10,
+    borderColor: '#ff6347',
+    borderWidth: 1,
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
+    color: '#ffffff',
+    fontFamily: 'sans-serif-condensed', // Sharp font style
   },
   subtitle: {
     fontSize: 18,
     marginBottom: 8,
+    marginLeft: 20,
     color: '#8b008b',
-    textAlign: 'center',
+    textAlign: 'left',
+    fontFamily: 'sans-serif',
   },
   favoritesContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
-    padding: 10,
+    marginBottom: 1,
+    padding: 8,
     borderColor: '#8b008b',
     borderWidth: 1,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    backgroundColor: '#e6e6fa',
     elevation: 2,
-    marginHorizontal: 20,
+    marginHorizontal: 80,
   },
   favoritesButton: {
     flexDirection: 'row',
@@ -125,7 +162,7 @@ const styles = StyleSheet.create({
   },
   favoritesText: {
     marginLeft: 8,
-    fontSize: 18,
+    fontSize: 16,
     color: '#8b008b',
   },
   instructionsContainer: {
@@ -139,7 +176,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   instructionsTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#8b008b',
@@ -147,6 +184,7 @@ const styles = StyleSheet.create({
   instructions: {
     fontSize: 16,
     lineHeight: 24,
+    fontFamily: 'sans-serif',
   },
 });
 
